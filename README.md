@@ -1,4 +1,4 @@
-# payload-plugin-page-templates
+# Payload Plugin - Page Templates
 
 This plugin adds Page Templates to Payload CMS. It works a lot like page templates in WordPress.
 
