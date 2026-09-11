@@ -1,0 +1,16 @@
+{
+  "name": "payload-plugin-page-templates",
+  "version": "0.1.0",
+  "description": "WordPress-style Page Templates for Payload CMS: a select field that swaps in per-template fields and tabs using Payload's own native conditional fields/tabs — no custom admin UI, no fork of core.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "peerDependencies": {
+    "payload": "^3.0.0"
+  }
+}
