@@ -20,6 +20,31 @@ function fieldName(field: Field): string | undefined {
 }
 
 /**
+ * Flattens a field list down to the data keys it actually produces.
+ *
+ * `row` and `collapsible` are pure admin-UI layout wrappers — they have no
+ * `name` of their own and no namespace: their children's values live
+ * directly on the parent document, exactly like top-level fields. Walk
+ * through those. A named field (group, array, blocks, text, ...) owns its
+ * whole subtree as one data key, so it's a leaf here even if it has nested
+ * fields of its own.
+ */
+function collectFieldNames(fields: Field[]): string[] {
+  const names: string[] = []
+  for (const field of fields) {
+    const name = fieldName(field)
+    if (name) {
+      names.push(name)
+      continue
+    }
+    if (field.type === "row" || field.type === "collapsible") {
+      names.push(...collectFieldNames((field as { fields: Field[] }).fields))
+    }
+  }
+  return names
+}
+
+/**
  * A real Payload plugin — drop it into `plugins: []` the same way you would
  * `@payloadcms/plugin-seo`. Adds a "Page Template" select to each target
  * collection, and — using only Payload's own native conditional
@@ -66,9 +91,8 @@ export function pageTemplatesPlugin(options: PageTemplatesPluginOptions) {
   // name collisions up front and to drive the clear-inactive-fields hook.
   const fieldOwner = new Map<string, string>()
   for (const template of options.templates) {
-    for (const field of [...(template.contentFields ?? []), ...(template.tab?.fields ?? [])]) {
-      const name = fieldName(field)
-      if (!name) continue
+    const names = collectFieldNames([...(template.contentFields ?? []), ...(template.tab?.fields ?? [])])
+    for (const name of names) {
       const existingOwner = fieldOwner.get(name)
       if (existingOwner && existingOwner !== template.value) {
         throw new Error(
